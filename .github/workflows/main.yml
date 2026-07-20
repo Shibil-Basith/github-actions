@@ -1,0 +1,69 @@
+name: Deploy index.html to EC2 httpd
+
+on:
+  push:
+    branches:
+      - main # Triggers when code is pushed to the main branch
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository Code
+        uses: actions/checkout@v4
+
+      - name: Deploy index.html to EC2 via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          port: 22
+          script: |
+            # 1. Update OS and install Apache if not already installed
+            if ! command -v httpd &> /dev/null && ! command -v apache2 &> /dev/null; then
+              if command -v yum &> /dev/null; then
+                sudo yum update -y
+                sudo yum install httpd -y
+                sudo systemctl start httpd
+                sudo systemctl enable httpd
+              elif command -v apt-get &> /dev/null; then
+                sudo apt-get update -y
+                sudo apt-get install apache2 -y
+                sudo systemctl start apache2
+                sudo systemctl enable apache2
+              fi
+            fi
+
+            # 2. Clear old files and write the new index.html to the web root
+            sudo rm -f /var/www/html/index.html
+            
+            # 3. Create the new file safely using a heredoc
+            sudo tee /var/www/html/index.html << 'EOF'
+            ${{ github.workspace }}/index.html
+            EOF
+            
+            # Note: Because the heredoc runs remotely, the easiest way to pull the 
+            # absolute fresh code without workspace formatting bugs is via quick echo or curl.
+            # Alternatively, use a clean copy approach:
+
+      # Optimal approach to safely move the file directly over SCP instead of standard SSH echo:
+      - name: Secure Copy index.html to EC2
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          source: "index.html"
+          target: "/tmp"
+
+      - name: Move file to Apache root via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            sudo mv /tmp/index.html /var/www/html/index.html
+            sudo chmod 644 /var/www/html/index.html
