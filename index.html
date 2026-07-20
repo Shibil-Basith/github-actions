@@ -3,87 +3,159 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EC2 Web Server</title>
+    <title>Server Control Center</title>
     <style>
         :root {
-            --primary: #232f3e; /* AWS Dark Blue */
-            --accent: #ff9900;  /* AWS Orange */
-            --bg: #f4f6f9;
-            --text: #333333;
+            --bg-dark: #0f172a;
+            --bg-card: #1e293b;
+            --accent-green: #10b981;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border-color: #334155;
         }
-        
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg);
-            color: var(--text);
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
             margin: 0;
-            padding: 0;
+            padding: 2rem 1rem;
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 100vh;
+            min-height: 90vh;
         }
 
-        .container {
-            background: #ffffff;
-            padding: 2.5rem;
-            border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-            max-width: 500px;
-            width: 90%;
-            text-align: center;
-            border-top: 5px solid var(--accent);
+        .dashboard {
+            width: 100%;
+            max-width: 600px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
         }
 
-        .icon {
-            font-size: 3rem;
-            margin-bottom: 1rem;
-        }
-
-        h1 {
-            color: var(--primary);
-            margin-top: 0;
-            margin-bottom: 0.5rem;
-            font-size: 1.8rem;
-        }
-
-        p {
-            color: #666;
-            line-height: 1.6;
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 1.5rem;
             margin-bottom: 1.5rem;
         }
 
-        .status-badge {
-            display: inline-block;
-            background-color: #e6f4ea;
-            color: #137333;
-            padding: 0.4rem 1rem;
-            border-radius: 50px;
-            font-size: 0.85rem;
+        h1 {
+            font-size: 1.5rem;
+            margin: 0;
             font-weight: 600;
-            letter-spacing: 0.5px;
+            letter-spacing: -0.025em;
         }
 
-        footer {
+        .pulse-container {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.85rem;
+            color: var(--accent-green);
+            font-weight: 500;
+        }
+
+        .pulse-dot {
+            width: 8px;
+            height: 8px;
+            background-color: var(--accent-green);
+            border-radius: 50%;
+            box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+            animation: pulse 1.6s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .card {
+            background: rgba(15, 23, 42, 0.4);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 1rem;
+        }
+
+        .card-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+            margin-bottom: 0.25rem;
+        }
+
+        .card-value {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .message-box {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), transparent);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            border-radius: 10px;
+            padding: 1rem;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            color: #cbd5e1;
+        }
+
+        .footer {
+            text-align: center;
             margin-top: 2rem;
             font-size: 0.8rem;
-            color: #999;
+            color: var(--text-muted);
         }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <div class="icon">🚀</div>
-        <h1>Deployment Successful!</h1>
-        <p>Your HTML website is now live, hosted on an Apache (httpd) web server via Amazon EC2, and continuously deployed using GitHub Actions.</p>
-        <span class="status-badge">● Server Active</span>
-        
-        <footer>
-            Built automatically with GitHub Actions
-        </footer>
+    <div class="dashboard">
+        <div class="header">
+            <h1>Infrastructure Node</h1>
+            <div class="pulse-container">
+                <div class="pulse-dot"></div>
+                <span>ONLINE</span>
+            </div>
+        </div>
+
+        <div class="grid">
+            <div class="card">
+                <div class="card-label">Web Server</div>
+                <div class="card-value">Apache / httpd</div>
+            </div>
+            <div class="card">
+                <div class="card-label">Deployment Provider</div>
+                <div class="card-value">GitHub Actions</div>
+            </div>
+        </div>
+
+        <div class="message-box">
+            <strong>System Status:</strong> The containerized environment has completed its pipeline verification. Source assets have been securely synced to the live EC2 environment path.
+        </div>
+
+        <div class="footer">
+            Last Synced: <span id="timestamp"></span>
+        </div>
     </div>
 
+    <script>
+        // Dynamically print the local timestamp when the user opens the page
+        document.getElementById('timestamp').innerText = new Date().toLocaleString();
+    </script>
 </body>
 </html>
 
